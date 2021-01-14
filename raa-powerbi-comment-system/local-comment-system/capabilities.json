@@ -1,0 +1,66 @@
+{
+    "dataRoles": [
+        {
+            "displayName": "Key (Measure)",
+            "name": "key",
+            "kind": "Measure"
+        },
+        {
+            "displayName": "Value (Measure)",
+            "name": "value",
+            "kind": "Measure"
+        }
+    ],
+    "objects": {
+        "edition": {
+            "displayName": "Edition",
+            "properties": {
+                "isActive": {
+                    "displayName": "Active?",
+                    "description": "True to write, False to read",
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "fontSize": {
+                    "displayName": "Font Size?",
+                    "description": "Font size in px of the editor panel",
+                    "type": {
+                        "numeric": true
+                    }
+                }
+            }
+        }
+    },
+    "suppressDefaultTitle": true,
+    "dataViewMappings": [
+        {
+            "conditions": [
+                {
+                    "key": {                    
+                        "max": 1
+                    },
+                    "value": {
+                        "max": 1
+                    }
+                }
+            ],
+            "categorical": {
+                "values": {
+                    "select": [
+                        {
+                            "bind": {
+                                "to": "key"
+                            }
+                        },
+                        {
+                            "bind": {
+                                "to": "value"
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

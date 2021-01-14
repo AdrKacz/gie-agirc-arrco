@@ -1,0 +1,131 @@
+#editor {
+    #editor-input {
+        overflow-wrap: break-word;
+        cursor: default;
+
+        &[contenteditable='true'] {
+            cursor: pointer;
+        }
+    }
+    width: 100vw;
+    height: 100vh;
+
+    background-color: lightgray;
+
+    cursor: default;
+}
+
+#output {
+    margin: 0;
+    padding: 0.5rem 1rem;
+    font-size: 16px;
+    font-style: italic;
+
+    max-width: calc(100vw - 100px);
+
+    position: absolute;
+
+    bottom: 0;
+
+    background-color: rgba(0,0,0,0.1);
+
+    cursor: default;
+}
+
+.check {
+    button {
+        outline: none;
+
+        border: none;
+        text-decoration: none;
+        
+        display: inline-block;
+    
+        margin: 0;
+        padding: 0;
+
+        font-size: 36px;
+
+        color: gray;
+
+        background-color: transparent;
+
+        cursor: pointer;
+
+        &:hover {
+            color: black;
+        }
+
+        &:active {
+            color: black;
+        }
+    }
+
+  
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    width: 50px;
+    height: 50px;
+
+    position: absolute;
+    top: 0;
+    right: 0;
+
+    background-color: transparent;
+
+    cursor: default;
+}
+
+.export {
+    a {
+        outline: none;
+
+        text-decoration: none;
+        vertical-align: top;
+        display: inline-block;
+    
+        margin: 0;
+        padding: 0;
+
+        font-size: 36px;
+
+        color: grey;
+
+        background-color: transparent;
+
+        cursor: pointer;
+
+        &:hover {
+            color: black;
+        }
+
+        &:active {
+            color: black;
+        }
+    }
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    width: 50px;
+    height: 50px;
+
+    position: absolute;
+
+    bottom: 0;
+    right: 0;
+
+    background-color: transparent;
+
+    cursor: default;
+}
+
+.hidden {
+    display: none;
+}

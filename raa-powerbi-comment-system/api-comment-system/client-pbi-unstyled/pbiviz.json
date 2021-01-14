@@ -1,0 +1,25 @@
+{
+    "visual": {
+        "name": "customText",
+        "displayName": "customText",
+        "guid": "customText0217BC73D8BE4147B3FE46664B031DCF",
+        "visualClassName": "Visual",
+        "version": "1.0.0",
+        "description": "Client to access Comment DB",
+        "supportUrl": "akaczmarek@agirc-arrco.fr",
+        "gitHubUrl": ""
+    },
+    "apiVersion": "2.6.0",
+    "author": {
+        "name": "Adrien Kaczmarek",
+        "email": "akaczmarek@agirc-arrco.fr"
+    },
+    "assets": {
+        "icon": "assets/icon.png"
+    },
+    "externalJS": [],
+    "style": "style/visual.less",
+    "capabilities": "capabilities.json",
+    "dependencies": null,
+    "stringResources": []
+}

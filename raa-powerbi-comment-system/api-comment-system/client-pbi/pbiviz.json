@@ -1,0 +1,25 @@
+{
+    "visual": {
+        "name": "clientPBI",
+        "displayName": "clientPBI",
+        "guid": "clientPBI4918931C07734377BF610B99ADB6A1F6",
+        "visualClassName": "Visual",
+        "version": "1.0.0",
+        "description": "API Client Comment System for RAA",
+        "supportUrl": "akaczmarek@agirc-arrco.fr",
+        "gitHubUrl": "https://github.com/AdrKacz/gie-agirc-arrco/tree/main/raa-powerbi-comment-system/api-comment-system/clientPBI/"
+    },
+    "apiVersion": "2.6.0",
+    "author": {
+        "name": "",
+        "email": ""
+    },
+    "assets": {
+        "icon": "assets/icon.png"
+    },
+    "externalJS": null,
+    "style": "style/visual.less",
+    "capabilities": "capabilities.json",
+    "dependencies": null,
+    "stringResources": []
+}

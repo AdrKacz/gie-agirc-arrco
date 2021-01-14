@@ -1,0 +1,39 @@
+// @import (less) "node_modules\quill\dist\quill.snow.css";
+
+#output p {
+    font-size: 20px;
+    font-weight: bold;
+    em {
+        background: rgb(17, 17, 6);
+        padding: 5px;
+        
+    }
+}
+
+button {
+    margin: 1rem;
+}
+
+label {
+    margin: 1rem;
+}
+
+#editor {
+    border: solid;
+    border-color: gray;
+    div[contenteditable=true] {
+        margin: 0.5rem;
+        padding: 1rem;
+        border: solid;
+        border-color: black; // red (does not exist), orange (does exist), green (published)
+
+        font-weight: normal;
+        font-size: 16px;
+    }
+
+    span.bold {
+        font-weight: bold;
+    }
+}
+
+

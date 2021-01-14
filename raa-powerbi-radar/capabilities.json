@@ -1,0 +1,196 @@
+{
+    "dataRoles": [
+        {
+            "displayName": "Category",
+            "name": "category",
+            "kind": "Grouping"
+        },
+        {
+            "displayName": "Measure",
+            "name": "measure",
+            "kind": "Measure"
+        }
+    ],
+    "objects": {
+        "colors": {
+            "displayName": "Colors",
+            "properties": {
+                "colorA": {
+                    "displayName": "Color A",
+                    "description": "The fill color of the first measure.",
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "colorB": {
+                    "displayName": "Color B",
+                    "description": "The fill color of the second measure.",
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "colorC": {
+                    "displayName": "Color C",
+                    "description": "The fill color of the third measure.",
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "labels": {
+            "displayName": "Labels",
+            "properties": {
+                "axis": {
+                    "displayName": "Axis",
+                    "description": "Label on axis.",
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "legends": {
+                    "displayName": "Legends",
+                    "description": "Label on legends.",
+                    "type": {
+                        "bool": true
+                    }
+                }
+            }
+        },
+        "axis": {
+            "displayName": "Axis",
+            "properties": {
+                "startValue": {
+                    "displayName": "Start Value",
+                    "description": "The initial value for the center of the radar. (day are divided by 100).",
+                    "type": {
+                        "numeric": true
+                    }
+                },
+                "endValue": {
+                    "displayName": "End Value",
+                    "description": "The end value for the center of the radar. (day are divided by 100).",
+                    "type": {
+                        "numeric": true
+                    }
+                },
+                "revertDays": {
+                    "displayName": "Revert Days",
+                    "description": "True to revert the display order of day (big to small).",
+                    "type": {
+                        "bool": true
+                    }
+                }
+            }
+        },
+        "graph": {
+            "displayName": "Graph",
+            "properties": {
+                "strokeWidth": {
+                    "displayName": "Stroke Width",
+                    "description": "The width of the lines used for measure.",
+                    "type": {
+                        "numeric": true
+                    }
+                },
+                "globalSizeRatio": {
+                    "displayName": "Global Size Ratio",
+                    "description": "The percetage of the available area that the graph fills.",
+                    "type": {
+                        "numeric": true
+                    }
+                },
+                "backgroundLevel": {
+                    "displayName": "Background Level",
+                    "description": "Number of polygons to draw on the background graph.",
+                    "type": {
+                        "numeric": true
+                    }
+                },
+                "targetName": {
+                    "displayName": "Target Name",
+                    "description": "Name used for the target if there is one.",
+                    "type": {
+                        "text": true
+                    }
+                }
+            }
+        },
+        "font": {
+            "displayName": "Font",
+            "properties": {
+                "sizeLabelData": {
+                    "displayName": "Size Label Data",
+                    "description": "Font size used for label data.",
+                    "type": {
+                        "numeric": true
+                    }
+                },
+                "sizeLabelAxis": {
+                    "displayName": "Size Label Axis",
+                    "description": "Font size used for label axis.",
+                    "type": {
+                        "numeric": true
+                    }
+                },
+                "sizeLegend": {
+                    "displayName": "Size Legend",
+                    "description": "Font size used for legend.",
+                    "type": {
+                        "numeric": true
+                    }
+                }
+            }
+        }
+    },
+    "sorting": {
+        "default": {}
+    },
+    "dataViewMappings": [
+        {
+            "conditions": [{
+                "category": {
+                    "max": 1
+                }
+            },
+            {
+                "measure": {
+                    "min": 3,
+                    "max": 3
+                }
+            }
+            ],
+            "categorical": {
+                "categories": {
+                    "for": {
+                        "in": "category"
+                    },
+                    "dataReductionAlgorithm": {
+                        "top": {}
+                    }
+                },
+                "values": {
+                    "select": [
+                        {
+                            "bind": {
+                                "to": "measure"
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

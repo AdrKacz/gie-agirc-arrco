@@ -1,0 +1,25 @@
+{
+    "visual": {
+        "name": "radar",
+        "displayName": "Radar",
+        "guid": "radarCCE4EFFCDFDE4DFDBDA084E1D27B8867",
+        "visualClassName": "Visual",
+        "version": "2.0.0",
+        "description": "Radar used in the Reporting COM, icon made by Freepik from www.flaticon.com",
+        "supportUrl": "https://rsr.agirc-arrco.fr/",
+        "gitHubUrl": "https://github/AdrKacz/raa-powerbi-radar.git"
+    },
+    "apiVersion": "2.6.0",
+    "author": {
+        "name": "Adrien Kaczmarek",
+        "email": "akaczmarek@agirc-arrco.fr"
+    },
+    "assets": {
+        "icon": "assets/icon.png"
+    },
+    "externalJS": [],
+    "style": "style/visual.less",
+    "capabilities": "capabilities.json",
+    "dependencies": null,
+    "stringResources": []
+}

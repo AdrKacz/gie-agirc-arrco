@@ -1,0 +1,78 @@
+# Blacklist files/folders in same directory as the .gitignore file
+/*
+
+# Whitelist some files
+!.gitignore
+!README.md
+
+# Ignore all files named .DS_Store or ending with .log
+**/.DS_Store
+**.log
+
+# Whitelist raa-powerbi-radar/src, raa-powerbi-radar/style, raa-powerbi-radar/assets, raa-powerbi-radar/capabilities.json, raa-powerbi-radar/pbiviz.json
+!raa-powerbi-radar/
+raa-powerbi-radar/*
+
+!raa-powerbi-radar/src
+!raa-powerbi-radar/style
+!raa-powerbi-radar/assets
+
+!raa-powerbi-radar/capabilities.json
+!raa-powerbi-radar/pbiviz.json
+
+# Whitelist raa-powerbi-comment-system
+!raa-powerbi-comment-system/
+raa-powerbi-comment-system/*
+
+# Whitelist raa-powerbi-comment-system/api-comment-system, raa-powerbi-comment-system/local-comment-system
+!raa-powerbi-comment-system/api-comment-system
+raa-powerbi-comment-system/api-comment-system/*
+
+!raa-powerbi-comment-system/local-comment-system
+raa-powerbi-comment-system/local-comment-system/*
+
+# Whitelist raa-powerbi-comment-system/api-comment-system/client-pbi, raa-powerbi-comment-system/api-comment-system/client-pbi-unstyled, raa-powerbi-comment-system/api-comment-system/server-pbi
+!raa-powerbi-comment-system/api-comment-system/client-pbi
+raa-powerbi-comment-system/api-comment-system/client-pbi/*
+
+!raa-powerbi-comment-system/api-comment-system/client-pbi-unstyled
+raa-powerbi-comment-system/api-comment-system/client-pbi-unstyled/*
+
+!raa-powerbi-comment-system/api-comment-system/server-pbi
+raa-powerbi-comment-system/api-comment-system/server-pbi/*
+
+# Whitelist raa-powerbi-comment-system/api-comment-system/client-pbi/src, raa-powerbi-comment-system/api-comment-system/client-pbi/style,
+# raa-powerbi-comment-system/api-comment-system/client-pbi/assets, raa-powerbi-comment-system/api-comment-system/client-pbi/capabilities.json,
+# raa-powerbi-comment-system/api-comment-system/client-pbi/pbiviz.json
+!raa-powerbi-comment-system/api-comment-system/client-pbi/src
+!raa-powerbi-comment-system/api-comment-system/client-pbi/style
+!raa-powerbi-comment-system/api-comment-system/client-pbi/assets
+
+!raa-powerbi-comment-system/api-comment-system/client-pbi/capabilities.json
+!raa-powerbi-comment-system/api-comment-system/client-pbi/pbiviz.json
+
+# Whitelist raa-powerbi-comment-system/api-comment-system/client-pbi-unstyled/src, raa-powerbi-comment-system/api-comment-system/client-pbi-unstyled/style,
+# raa-powerbi-comment-system/api-comment-system/client-pbi-unstyled/assets, raa-powerbi-comment-system/api-comment-system/client-pbi-unstyled/capabilities.json,
+# raa-powerbi-comment-system/api-comment-system/client-pbi-unstyled/pbiviz.json
+!raa-powerbi-comment-system/api-comment-system/client-pbi-unstyled/src
+!raa-powerbi-comment-system/api-comment-system/client-pbi-unstyled/style
+!raa-powerbi-comment-system/api-comment-system/client-pbi-unstyled/assets
+
+!raa-powerbi-comment-system/api-comment-system/client-pbi-unstyled/capabilities.json
+!raa-powerbi-comment-system/api-comment-system/client-pbi-unstyled/pbiviz.json
+
+# Whitelist raa-powerbi-comment-system/api-comment-system/server-pbi/src, raa-powerbi-comment-system/api-comment-system/server-pbi/style,
+# raa-powerbi-comment-system/api-comment-system/server-pbi/assets, raa-powerbi-comment-system/api-comment-system/server-pbi/capabilities.json,
+# raa-powerbi-comment-system/api-comment-system/server-pbi/pbiviz.json
+!raa-powerbi-comment-system/api-comment-system/server-pbi/*
+raa-powerbi-comment-system/api-comment-system/server-pbi/output.csv
+
+# Whitelist raa-powerbi-comment-system/local-comment-system/src, raa-powerbi-comment-system/local-comment-system/style,
+# raa-powerbi-comment-system/local-comment-system/assets, raa-powerbi-comment-system/local-comment-system/capabilities.json,
+# raa-powerbi-comment-system/local-comment-system/pbiviz.json
+!raa-powerbi-comment-system/local-comment-system/src
+!raa-powerbi-comment-system/local-comment-system/style
+!raa-powerbi-comment-system/local-comment-system/assets
+
+!raa-powerbi-comment-system/local-comment-system/capabilities.json
+!raa-powerbi-comment-system/local-comment-system/pbiviz.json

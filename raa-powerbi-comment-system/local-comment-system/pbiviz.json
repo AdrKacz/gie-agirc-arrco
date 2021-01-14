@@ -1,0 +1,25 @@
+{
+    "visual": {
+        "name": "editableTextArea",
+        "displayName": "Editable Text Area",
+        "guid": "editabletextarea448EEE048EF14F8593D4F99FE4A8A062",
+        "visualClassName": "Visual",
+        "version": "1.1.0",
+        "description": "Local Comment System for RAA",
+        "supportUrl": "akaczmarek@agirc-arrco.fr",
+        "gitHubUrl": "https://github.com/AdrKacz/gie-agirc-arrco/tree/main/raa-powerbi-comment-system/local-comment-system/commentVisual/commentVisual"
+    },
+    "apiVersion": "2.6.0",
+    "author": {
+        "name": "Adrien Kaczmarek",
+        "email": "akaczmarek@agirc-arrco.fr"
+    },
+    "assets": {
+        "icon": "assets/icon.png"
+    },
+    "externalJS": [],
+    "style": "style/visual.less",
+    "capabilities": "capabilities.json",
+    "dependencies": null,
+    "stringResources": []
+}
