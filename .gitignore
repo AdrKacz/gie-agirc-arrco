@@ -9,6 +9,9 @@
 **/.DS_Store
 **.log
 
+# Whitelist raa-vba
+!raa-vba
+
 # Whitelist raa-powerbi-radar/src, raa-powerbi-radar/style, raa-powerbi-radar/assets, raa-powerbi-radar/capabilities.json, raa-powerbi-radar/pbiviz.json
 !raa-powerbi-radar/
 raa-powerbi-radar/*

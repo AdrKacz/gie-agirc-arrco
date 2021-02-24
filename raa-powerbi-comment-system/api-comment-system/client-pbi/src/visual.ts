@@ -51,7 +51,7 @@ const UNIFOLDEROPEN = '&#128194;'; // Not used
 const UNIDOWNARROW = '&#10549;'; // &#9660; or &#9662; or &#10549;
 
 // Helper function to create timeout promise (useful if server can not be access => remove long waiting time)
-function timeoutPromise(ms:number, promise:Promise<Response>) {
+function timeoutPromise(ms:number, promise:Promise<Response>): Promise<void | Response> {
     return new Promise<Response>((resolve, reject) => {
         const timeoutId = setTimeout(() => {
             reject(new Error('Promise TimeOut'));
@@ -69,33 +69,70 @@ function timeoutPromise(ms:number, promise:Promise<Response>) {
     });
 };
 
-// Send GET request to the server
-function getKeyFromServer(visual: Visual, key: string): void {
-    // Warning - ETHERNET and WIFI address change over time ...
-    // Need to find a way to solve this ...
+// Send Get request to the server
+function getFromServer(visual: Visual, commentView: CommentViewModel): void {
+    // Better if the first argument IS the output method and not the visual
+    // Avoid bug if the name of the method change
+    
+    const requestPath: string = "https://celul.ovh/JSONServe/get.php";
+    const requestParams: string = encodeURI(`?k=${commentView.commentKey}`);
 
-    let requestPath: string = '/';
     const requestInit: RequestInit = {
-        method: "GET",
+        method: 'GET',
     };
 
-    // Find which server is alive then send it the request
-
-    let local: Promise<void | Response> = timeoutPromise(1000, fetch('http://127.0.0.1:5000/'))
+    // returned type Promise<void | Response>
+    timeoutPromise(1000, fetch(requestPath + requestParams, requestInit))
+        .then(response => {
+            if (!response) {
+                throw new Error(`[Error] Do not succeed to reach the server`);
+            } else if (!response.ok) {
+                throw new Error(`[Error] HTTP status: ${response.status}`);
+            } else {
+                return response.json();
+            };   
+        })
+        .then(jsonResponse => {
+            visual.updateCommentViewWithJSON(jsonResponse);
+        })
         .catch(e => {
-            // Inform the user that the local cannot be reached
+            visual.displayOutput(`[Error] Fetch at ${requestPath + requestParams} returned <${e.message}>`);
         });
-    
-    // Same for ETHERNET (172.29.134.132) and WIFI (172.29.146.134) 
 
-    let alive: string = "";
-    let aliveStr: string = "";
-
-    Promise.all([local]).then(responses => {
-        const resLocal = responses[0];
-        
-    })
+    return;
 };
+
+function postToServer(visual: Visual, commentView: CommentViewModel): void {
+    // Better if the first argument IS the output method and not the visual
+    // Avoid bug if the name of the method change
+
+    const requestPath: string = "https://celul.ovh/JSONServe/set.php";
+    const requestParams: string = encodeURI(`?k=${commentView.commentKey}&c=${commentView.commentValue}`);
+
+    const requestInit: RequestInit = {
+        method: 'POST',
+    };
+
+    // returned type Promise<void | Response>
+    timeoutPromise(1000, fetch(requestPath + requestParams, requestInit))
+        .then(response => {
+            if (!response) {
+                throw new Error(`[Error] Do not succeed to reach the server`);
+            } else if (!response.ok) {
+                throw new Error(`[Error] HTTP status: ${response.status}`);
+            } else {
+                return response.json();
+            };   
+        })
+        .then(_ => {
+            visual.displayOutput(`[Debug] Reach Server`);
+        })
+        .catch(e => {
+            visual.displayOutput(`[Error] Fetch at ${requestPath} returned <${e.message}>`);
+        });
+
+    return;
+}
 
 // Helper function to add zero to the left of a number to print
 function leftPad(num, targetLength) {
@@ -108,54 +145,42 @@ interface CommentViewModel {
     commentValue : string;
     errorMessage: string;
     validData: boolean;
+    isLoading: boolean;
 };
 
 function visualTransform(options: VisualUpdateOptions, host: IVisualHost, visualSettings: VisualSettings): CommentViewModel {
-    const dataView = options.dataViews;
-
-    const categorical = options.dataViews[0].categorical;
-    
     let commentView: CommentViewModel = {
         commentKey : '',
         commentValue : '',
         errorMessage: '',
-        validData: true,
+        validData: false,
+        isLoading: false,
     };
 
-    if (categorical) { 
-        const values = categorical.values;
+    // Problem with input measure (most of the case when there is no measure)
+    if (!options || !options.dataViews || !options.dataViews[0]) {
+        commentView.errorMessage = 'No measure';
+        return commentView;
+    }
 
-        // Check if the data are correct
-        // Is enought data ? (at least 2)
-        if (values.length < 2) {
-            commentView.validData = false;
-            commentView.errorMessage = 'Not enought input';
-            return commentView;
-        };
-
-        // Are they in the right order (key then measure ==> should always be right)
-        if (!values[0].source.roles.key || !values[1].source.roles.value) {
-            commentView.validData = false;
-            commentView.errorMessage = 'Input not correctly set';
-            return commentView;
-        };
+    const single = options.dataViews[0].single;
+    if (single) { 
+        const value = single.value.toString();
 
         // Measures did not return result
-        if (values[0].values.length < 1 || values[1].values.length < 1) {
-            commentView.validData = false;
-            commentView.errorMessage = 'No data to read from at least one of the input measure';
+        if (value.length < 1) {
+            commentView.errorMessage = 'No measure value';
             return commentView;
         };
 
         // No problem > Assign values and return
-        commentView.commentKey = values[0].values[0].toString()
-        commentView.commentValue = values[1].values[0].toString()   
+        commentView.validData = true;
+        commentView.commentKey = value; 
         return commentView;
-    };
-
-    // Problem with none categorical data
-    commentView.validData = false;
-    commentView.errorMessage = 'Data not correctly handle (none categorical)';
+    } else {
+        // Problem with none single data
+        commentView.errorMessage = 'Data not correctly handle (not single)';
+    }; 
     return commentView;
 };
 
@@ -165,31 +190,18 @@ export class Visual implements IVisual {
 
     private target: HTMLElement;
 
-    private outputTextNode: Text;
     private inputDiv: HTMLElement;
-    private exportLink: HTMLElement;
 
     private validateBtn: HTMLElement;
 
+    private outputTextNode: Text;
     private outputP: HTMLElement;
     private validateDiv: HTMLElement;
-    private exportLinkDiv: HTMLElement;
 
-    private currentKey: string;
-    private currentValue: string;
-
-    // private updateCount: number;
-    private numberValidation: number;
-
-    private validatedInputs: {};
-    
+    private commentView: CommentViewModel;
+   
     constructor(options: VisualConstructorOptions) {
-        this.currentKey = "";
-        this.currentValue = "";
-        // this.updateCount = 0;
-        this.numberValidation = 0;
-
-        this.validatedInputs = {};
+        this.commentView = this.getDefaultCommentView();
 
         this.target = options.element;
 
@@ -211,6 +223,7 @@ export class Visual implements IVisual {
             this.inputDiv = document.createElement('div');
             this.inputDiv.setAttribute('id', 'editor-input');
             this.inputDiv.setAttribute('contenteditable', 'true');
+            // Check when the input text is changed (??? user or new key ???)
             this.inputDiv.addEventListener('input', _ => {
                 this.inputChanged();
             });
@@ -225,56 +238,56 @@ export class Visual implements IVisual {
             this.validateBtn.setAttribute('type', 'button');
             this.validateBtn.innerHTML = UNIBOXCHECK;
             this.validateBtn.addEventListener('click', _ => {
-                this.validateInput();
+                this.postInput();
             });
             this.validateBtn.style.setProperty('color', 'black'); // Fix color mode (no changement)
 
             this.validateDiv.appendChild(this.validateBtn);
 
-            // Export data button
-            this.exportLinkDiv = document.createElement('div');
-            this.exportLinkDiv.setAttribute('class', 'export');
-
-            this.exportLink = document.createElement('a');           
-            this.exportLink.setAttribute('href', '#');
-            this.exportLink.setAttribute('download', 'empty.json');
-            this.exportLink.innerHTML = UNIDOWNARROW;
-
-            this.exportLinkDiv.appendChild(this.exportLink);
-
             // Append element to target
             main.appendChild(editor);
             main.appendChild(this.validateDiv);
-            main.appendChild(this.exportLinkDiv);
             
             main.appendChild(this.outputP);
 
             this.target.appendChild(main);
+
+            this.displayOutput('[Debug] End Construction');
         };
     };
 
     public update(options: VisualUpdateOptions) {
-        // Get Settings
-        const oldVisualSettings = this.visualSettings;
+        // Update will fire when 
+        //      A measure is removed
+        //      An existing measure changed
+        //      A setting is changed
+        //      The visual is resized
+        // Update will NOT fire when (WARNING)
+        //      A measure is removed
+        //      No measure (thus the last correct one remains)
+        
+        // Get Settings (store past edition value to execute only when needed)
+        let pastEditionActiveStatus: boolean = null;
+        if (this.visualSettings) {
+            pastEditionActiveStatus = this.visualSettings.edition.isActive;  
+        };   
         this.visualSettings = VisualSettings.parse<VisualSettings>(options.dataViews[0]);
-
-        // Check if edit mode change
-        if (this.visualSettings.edition.isActive !== oldVisualSettings.edition.isActive) {
+        
+        // Check if edit mode change (to style accordingly) (settings)
+        if (this.visualSettings.edition.isActive !== pastEditionActiveStatus) {
             if (!this.visualSettings.edition.isActive) {
-                // If no edition, hide button, link and output, stop content editable
+                // If no edition, hide button and output, stop content editable
                 this.outputP.setAttribute('class', 'hidden');
                 this.validateDiv.setAttribute('class', 'check hidden');
-                this.exportLinkDiv.setAttribute('class', 'export hidden');
 
                 this.inputDiv.setAttribute('contenteditable', 'false');
 
                 // Set background to transparent
                 this.inputDiv.parentElement.style.setProperty('background-color', 'transparent');
             } else {
-                // If edition, show button, link and output, start content editable
+                // If edition, show button and output, start content editable
                 this.outputP.setAttribute('class', '');
                 this.validateDiv.setAttribute('class', 'check');
-                this.exportLinkDiv.setAttribute('class', 'export');
 
                 this.inputDiv.setAttribute('contenteditable', 'true');
 
@@ -282,130 +295,117 @@ export class Visual implements IVisual {
                 this.inputDiv.parentElement.style.setProperty('background-color', '');
             }
         };
-
-        // Update the font size
+        
+        // Update the font size (settings)
         this.inputDiv.style.fontSize = `${this.visualSettings.edition.fontSize}px`;
 
-        // Get Data
-        const viewModel: CommentViewModel = visualTransform(options, this.host, this.visualSettings);
+        // Get Input Data (the Key if any), store old one if any (for comparaison with the new one)
+        let pastCommentView: CommentViewModel = this.getDefaultCommentView();
+        if (this.commentView) {
+            pastCommentView = this.commentView;
+        };
+
+        this.commentView = visualTransform(options, this.host, this.visualSettings);
 
         // Check if the inputs are valid and quit if not
-        if (!viewModel.validData) {
-            this.currentKey = '';
-            this.currentValue = '';
-            this.displayOutput(`[Error] ${viewModel.errorMessage}`);
+        // If the key is empty the data are not valid, no need to check it later on
+        if (!this.commentView.validData) {
+            this.displayOutput(`[Error] ${this.commentView.errorMessage}`);
             return;
         };
 
-        
+        // Check if the key is a new one (minimum update verification)
+        if (this.commentView.commentKey !== pastCommentView.commentKey) {
+            // Update Input Div
+            this.displayHTMLInput(this.commentView.commentValue); // Empty string at this stage
 
-        let isNewValues: boolean =  false;
-        // Check if the values are new and quit if not (minimum update verification)
-        if (this.currentKey !== viewModel.commentKey) {
-            isNewValues = true;
+            // Update Output Div
+            this.displayOutput(`[Debug] Key Selected: ${this.commentView.commentKey}`);
+
+            // Fetch the server for the comment value
+            getFromServer(this, this.commentView);
         };
 
-        if (this.currentValue !== viewModel.commentValue) {
-            isNewValues = true;
+    };
+
+    public updateCommentViewWithJSON(updatedCommentViewJSON) {
+        this.displayOutput(`[Debug] Parse and Update the input field, JSON received: "${updatedCommentViewJSON.c}"`);
+
+        // Parse the JSON input
+        const updateCommentView: CommentViewModel = this.getDefaultCommentView();
+        updateCommentView.commentKey = updatedCommentViewJSON.k;
+        updateCommentView.commentValue = updatedCommentViewJSON.c;
+
+        // Update if the key match (they should match if the code flow is respected)
+        if (updateCommentView.commentKey === this.commentView.commentKey) {
+            updateCommentView.validData = true;
+
+            this.commentView = updateCommentView;
         };
 
-        if (!isNewValues) {
-            return;
+        // Update the Input Div
+        this.displayHTMLInput(this.commentView.commentValue);
+    };
+
+    public displayOutput(textToDisplay: string) {
+        this.outputTextNode.textContent = textToDisplay;
+    };
+
+    private getDefaultCommentView(): CommentViewModel {
+        return {
+            commentKey : "",
+            commentValue : "",
+            errorMessage: "",
+            validData: false,
+            isLoading: false,
         };
-
-        // Update
-        this.currentKey = viewModel.commentKey;
-        this.currentValue = viewModel.commentValue;
-
-        // Check length
-        if (this.currentKey === '' && this.currentValue === '') {
-            // Handle empty case and quit
-            this.displayOutput(`[ERROR] Nothing selected`);
-            return;
-        };
-
-        // Update the visual according the its new value.
-        this.displayOutput(`[SELECTED] KEY: ${this.currentKey} - VALUE: ${this.currentValue}`);
-
-        if (this.validatedInputs[this.currentKey]) {
-            this.displayHTMLInput(this.validatedInputs[this.currentKey].htmlValue);
-        } else {
-            this.displayHTMLInput(this.currentValue);
-        };
-
     };
 
     private inputChanged() {
         this.validateBtn.style.setProperty('color', ''); // Switch color mode
+        // Store input if key registered
+        if (this.commentView.validData) {
+            this.commentView.commentValue = this.inputDiv.innerHTML;
+        };
     };
 
-    private displayOutput(textToDisplay: string) {
-        this.outputTextNode.textContent = textToDisplay;
-    };
+    
 
     private displayHTMLInput(htmlToDisplay: string) {
+        // No verification performs on the text input
         this.inputDiv.innerHTML = htmlToDisplay;
     }
 
-    private validateInput() {
-        if (this.currentKey.length > 0) {
+    private postInput() {
+        // commentView is stored only if it is valid
+        if (this.commentView.validData) {
+            this.displayOutput(`[Debug] Call Fetch to post the key ${this.commentView.commentKey}`);
+
+            // POST the commentValue linked to the commentKey to the server
+            postToServer(this, this.commentView);
+
             // Id format
             // yyyy-mm-dd-hh-mm-ss-milli-random_number_between_0_and_9999
             // remove '-', date at UTC
-            const nowDate = Date.now();
 
-            const randomStr = leftPad(Math.floor(Math.random() * 10000) % 100, 2); // Hypothesis: no more than 100 modifications during one timestamps (1milliseconds)
+            // const nowDate = Date.now();
+            // const nowBasis = `${nowDate}`;
+            // Hypothesis: no more than 100 modifications during one timestamps (1milliseconds)
+            // const randomStr = leftPad(Math.floor(Math.random() * 10000) % 100, 2);      
+            // const nowID = `${nowBasis}${randomStr}`;
+            // this.validatedInputs[this.currentKey] =  {
+            //     key: this.currentKey,
+            //     htmlValue: this.inputDiv.innerHTML,
+            //     id: parseInt(nowID),
+            //     date: nowDate,
+            // };
+            // this.numberValidation += 1;
 
-            const nowBasis = `${nowDate}`;
-
-            const nowID = `${nowBasis}${randomStr}`;
-
-            this.validatedInputs[this.currentKey] =  {
-                key: this.currentKey,
-                htmlValue: this.inputDiv.innerHTML,
-                id: parseInt(nowID),
-                date: nowDate,
-            };
-
-            this.numberValidation += 1;
-            this.validateBtn.style.setProperty('color', 'black'); // Fix color mode (no changement)
-
-            this.displayOutput(`[SAVED] KEY: ${this.validatedInputs[this.currentKey].key} - ID: ${this.validatedInputs[this.currentKey].id}`);
-
-            this.updateExportLink(nowBasis);
+            // this.validateBtn.style.setProperty('color', 'black'); // Fix color mode (no changement)
+            // this.displayOutput(`[SAVED] KEY: ${this.validatedInputs[this.currentKey].key} - ID: ${this.validatedInputs[this.currentKey].id}`);
         } else {
-            this.displayOutput('[Error] No key to assign');
+            this.displayOutput('[Error] No key to post');
         };
-    };
-
-    private updateExportLink(lastBasisComputed) {
-        // check if the validated input are not empty, else quit
-        if (this.numberValidation === 0) {
-            return;
-        };
-        const preHREF = 'data:text/csv;charset=utf-8,%EF%BB%BF';
-        const csvString = this.getValidatedInputsToCSV();
-        const href = preHREF + csvString;//+ encodeURIComponent(JSON.stringify(this.validatedInputs));
-
-        this.exportLink.setAttribute('href', href);
-
-        // Link Name for download > Could then be used to determine which update is the last one during merge
-        const numberValidationStr = leftPad(this.numberValidation % 100, 2); // Hypothesis: no more than 100 modification during one seconds (min base of ID)
-
-        const nowDownload = `${lastBasisComputed}-${numberValidationStr}`;
-
-        this.exportLink.setAttribute('download', `${nowDownload}.csv`);
-    };
-
-    private getValidatedInputsToCSV() {
-        let csvString = 'ID,Date,Key,HTMLValue\r\n';
-
-        for (let key in this.validatedInputs) {
-            csvString += `${this.validatedInputs[key].id},${this.validatedInputs[key].date},${this.validatedInputs[key].key},${this.validatedInputs[key].htmlValue}`;
-            csvString += '\r\n';
-        };
-
-        return csvString;
     };
 
     // private static parseSettings(dataView: DataView): VisualSettings {
