@@ -1,0 +1,17 @@
+let
+    Source = Folder.Files("S:\DirectionPOP\General\CONTRATS OBJECTIFS ET MOYENS 2019 2022\09 Reporting COM\2019\BDD - Fichiers de travail\Actifs\2020\Data source\Rectifications de carrière\Données source"),
+    #"Texte en majuscules" = Table.TransformColumns(Source,{{"Name", Text.Upper, type text}}),
+    #"Select Dossier Termines" = Table.SelectRows(#"Texte en majuscules", each Text.StartsWith([Name], "DOSSIERS TERMIN") or Text.StartsWith([Name], "DOSSIERS_TERMIN")),
+
+    file_count = Table.RowCount(#"Select Dossier Termines"),
+
+    #"Add Table Column" = Table.AddColumn(#"Select Dossier Termines", "Table Generated", each Excel.Workbook([Content])),
+    #"Table Generated développé" = Table.ExpandTableColumn(#"Add Table Column", "Table Generated", {"Data"}, {"Data"}),
+    #"Autres colonnes supprimées" = Table.SelectColumns(#"Table Generated développé",{"Data"}),
+    #"Data développé" = Table.ExpandTableColumn(#"Autres colonnes supprimées", "Data", {"Column1", "Column2", "Column3", "Column4", "Column5", "Column6", "Column7", "Column8", "Column9", "Column10", "Column11"}, {"Numero", "NIR", "Acte_dernier_engagement", "Groupe", "Date_dernier_engagement", "Type", "Niveau", "Date_signal_fin", "Date_premier_acte_gestion", "Premier_acte_gestion", "Agent"}),
+    #"Lignes triées" = Table.Sort(#"Data développé",{{"Numero", Order.Descending}}),
+    #"Premières lignes supprimées" = Table.Skip(#"Lignes triées",file_count),
+    #"Type modifié" = Table.TransformColumnTypes(#"Premières lignes supprimées",{{"Numero", type text}, {"NIR", type text}, {"Acte_dernier_engagement", type text}, {"Groupe", type text}, {"Date_dernier_engagement", type date}, {"Type", type text}, {"Niveau", Int64.Type}, {"Date_signal_fin", type date}, {"Date_premier_acte_gestion", type date}, {"Premier_acte_gestion", type text}, {"Agent", type text}}),
+    #"Lignes filtrées" = Table.SelectRows(#"Type modifié", each true)
+in
+    #"Lignes filtrées"
